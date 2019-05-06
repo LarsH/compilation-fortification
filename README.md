@@ -239,28 +239,28 @@ Now, we must revisit what a library function expects the stack to look like when
 
 stack| values
 -----| -----------
->    | return address from function
-     | arg 1
-     | arg 2
+0    | return address from function
+1    | arg 1
+2    | arg 2
      | ...
 
 What does this mean for us? We must remember that we are doing the actual call *by returning*, so before the return the stack must look like:
 
 stack| values
 -----| -----------
-     | libcAddress
->    | return address from function
-     | arg 1
-     | arg 2
+-1   | libcAddress
+0    | return address from function
+1    | arg 1
+2    | arg 2
      | ...
 
 So if we want to call `system("/bin/sh")`, we must arrange the stack like this before the return:
 
 stack| values
 -----| -----------
-     | pointer to system in libc
->    | 4 bytes padding
-     | pointer to "/bin/sh"
+-1   | pointer to system in libc
+0    | 4 bytes padding
+1    | pointer to "/bin/sh"
 
 The location of `system` is easy to find
 
@@ -323,9 +323,9 @@ We can now prepare our exploit, we want the stack to be
 
 stack| value      | comment
 -----| -----      | ------
-     | 0xf7dfe1fc | pointer to system in libc (minus 4)
->    | 'XXXX'     | 4 bytes padding
-     | 0xf7f280cf | pointer to "/bin/sh"
+-1   | 0xf7dfe1fc | pointer to system in libc (minus 4)
+0    | 'XXXX'     | 4 bytes padding
+1    | 0xf7f280cf | pointer to "/bin/sh"
 
 So we try our exploit
 
